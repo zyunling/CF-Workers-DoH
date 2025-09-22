@@ -14,6 +14,7 @@ const dohServers = [
         url: 'https://doh.090227.xyz/Ali-query',
         logo: 'ico/alibabacloud.png'
     },
+/*
     {
         name: '腾讯云',
         url: 'https://doh.090227.xyz/QQ-query',
@@ -24,6 +25,7 @@ const dohServers = [
         url: 'https://doh.090227.xyz/360-query',
         logo: 'ico/360.ico'
     },
+*/
     {
         name: 'AdGuard',
         url: 'https://doh.090227.xyz/AdG-query',
