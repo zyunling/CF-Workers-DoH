@@ -263,14 +263,17 @@ async function testAllServers() {
 
     renderDohListSkeletons();
     
-    // 同时刷新 DoH 服务和网络信息
-    const promises = dohServers.map((server, index) => testDohServer(server, index));
-    testResults = await Promise.all(promises);
+    // 并行执行 DoH 服务测试和网络信息获取,互不影响
+    const dohTestPromises = dohServers.map((server, index) => testDohServer(server, index));
+    const networkInfoPromise = loadNetworkInfo();
+    
+    // 等待 DoH 测试完成
+    testResults = await Promise.all(dohTestPromises);
     
     updateStats();
     
-    // 刷新网络信息
-    loadNetworkInfo();
+    // 网络信息在后台继续加载,不阻塞 DoH 测试结果的显示
+    // networkInfoPromise 会自行完成,无需等待
 
     isTesting = false;
     refreshBtn.disabled = false;
@@ -479,13 +482,44 @@ async function fetchTwitterData() {
     }
 }
 
+// 重置网络信息显示为加载中状态
+function resetNetworkInfo() {
+    // 重置所有 IP 和位置信息为"加载中..."
+    const ipElements = ['ipip-ip', 'edgeone-ip', 'cf-ip', 'twitter-ip'];
+    const countryElements = ['ipip-country', 'edgeone-country', 'cf-country', 'twitter-country'];
+    const cityElements = ['ipip-city', 'edgeone-city', 'cf-city', 'twitter-city'];
+    const statusElements = ['status-ipip', 'status-edgeone', 'status-cf', 'status-twitter'];
+    
+    ipElements.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = '加载中...';
+    });
+    
+    countryElements.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = '-';
+    });
+    
+    cityElements.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = '-';
+    });
+    
+    statusElements.forEach(id => {
+        setStatus(id, 'loading');
+    });
+}
+
 // 页面加载时自动获取网络信息
-function loadNetworkInfo() {
+async function loadNetworkInfo() {
     // 检查网络卡片容器是否存在
     const networkCardsContainer = document.querySelector('.network-cards-container');
     if (networkCardsContainer) {
+        // 先重置显示状态
+        resetNetworkInfo();
+        
         // 并行加载所有网络信息
-        Promise.all([
+        return Promise.all([
             fetchIpipData(),
             fetchEdgeOneData(),
             fetchCloudFlareData(),
@@ -494,4 +528,5 @@ function loadNetworkInfo() {
             console.error('加载网络信息时出错:', error);
         });
     }
+    return Promise.resolve();
 }
