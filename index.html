@@ -20,88 +20,89 @@
 
         <section class="card stats-card">
             <div class="card-header">
-                <h2 class="card-title">📊 统计概览</h2>
+                <h2 class="card-title">🌐 当前网络信息</h2>
                 <button class="refresh-btn" id="refreshBtn" onclick="testAllServers()">
                     <span class="icon">🔄</span>
                     <span class="text">刷新状态</span>
                 </button>
             </div>
-            <div class="stats-summary" id="statsSummary">
-                <div class="stat-item">
-                    <div class="stat-value" id="totalServers">-</div>
-                    <div class="stat-label">总服务数</div>
+            
+            <div class="network-cards-container">
+                <div class="network-card">
+                    <div class="network-card-title">
+                        <span class="status-indicator" id="status-ipip"></span>
+                        国内测试
+                    </div>
+                    <div class="network-info-content">
+                        <span id="ipip-ip" class="ip-text">加载中...</span>
+                        <div class="location-text">
+                            <span id="ipip-country" class="country-text">-</span>
+                            <span id="ipip-city" class="city-text">-</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="onlineServers">-</div>
-                    <div class="stat-label">在线服务</div>
+
+                <div class="network-card">
+                    <div class="network-card-title">
+                        <span class="status-indicator" id="status-edgeone"></span>
+                        国外测试（漏网之鱼）
+                    </div>
+                    <div class="network-info-content">
+                        <span id="edgeone-ip" class="ip-text">加载中...</span>
+                        <div class="location-text">
+                            <span id="edgeone-country" class="country-text">-</span>
+                            <span id="edgeone-city" class="city-text">-</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="averageResponseTime">-</div>
-                    <div class="stat-label">平均延迟</div>
+
+                <div class="network-card">
+                    <div class="network-card-title">
+                        <span class="status-indicator" id="status-cf"></span>
+                        CloudFlare（ProxyIP）
+                    </div>
+                    <div class="network-info-content">
+                        <span id="cf-ip" class="ip-text">加载中...</span>
+                        <div class="location-text">
+                            <span id="cf-country" class="country-text">-</span>
+                            <span id="cf-city" class="city-text">-</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="cleanServers">-</div>
-                    <div class="stat-label">纯净服务</div>
+
+                <div class="network-card">
+                    <div class="network-card-title">
+                        <span class="status-indicator" id="status-twitter"></span>
+                        墙外测试（推特）
+                    </div>
+                    <div class="network-info-content">
+                        <span id="twitter-ip" class="ip-text">加载中...</span>
+                        <div class="location-text">
+                            <span id="twitter-country" class="country-text">-</span>
+                            <span id="twitter-city" class="city-text">-</span>
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <div class="network-info-section">
-                <h2 class="card-title network-info-title">🌐 网络信息</h2>
-                <div class="network-cards-container">
-                    <div class="network-card">
-                        <div class="network-card-title">
-                            <span class="status-indicator" id="status-ipip"></span>
-                            国内测试
-                        </div>
-                        <div class="network-info-content">
-                            <span id="ipip-ip" class="ip-text">加载中...</span>
-                            <div class="location-text">
-                                <span id="ipip-country" class="country-text">-</span>
-                                <span id="ipip-city" class="city-text">-</span>
-                            </div>
-                        </div>
+            <div class="stats-info-section">
+                <h2 class="card-title stats-info-title">📊 解析统计概览</h2>
+                <div class="stats-summary" id="statsSummary">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalServers">-</div>
+                        <div class="stat-label">总服务数</div>
                     </div>
-
-                    <div class="network-card">
-                        <div class="network-card-title">
-                            <span class="status-indicator" id="status-edgeone"></span>
-                            国外测试（漏网之鱼）
-                        </div>
-                        <div class="network-info-content">
-                            <span id="edgeone-ip" class="ip-text">加载中...</span>
-                            <div class="location-text">
-                                <span id="edgeone-country" class="country-text">-</span>
-                                <span id="edgeone-city" class="city-text">-</span>
-                            </div>
-                        </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="onlineServers">-</div>
+                        <div class="stat-label">在线服务</div>
                     </div>
-
-                    <div class="network-card">
-                        <div class="network-card-title">
-                            <span class="status-indicator" id="status-cf"></span>
-                            CloudFlare（ProxyIP）
-                        </div>
-                        <div class="network-info-content">
-                            <span id="cf-ip" class="ip-text">加载中...</span>
-                            <div class="location-text">
-                                <span id="cf-country" class="country-text">-</span>
-                                <span id="cf-city" class="city-text">-</span>
-                            </div>
-                        </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="averageResponseTime">-</div>
+                        <div class="stat-label">平均延迟</div>
                     </div>
-
-                    <div class="network-card">
-                        <div class="network-card-title">
-                            <span class="status-indicator" id="status-twitter"></span>
-                            墙外测试（推特）
-                        </div>
-                        <div class="network-info-content">
-                            <span id="twitter-ip" class="ip-text">加载中...</span>
-                            <div class="location-text">
-                                <span id="twitter-country" class="country-text">-</span>
-                                <span id="twitter-city" class="city-text">-</span>
-                            </div>
-                        </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="cleanServers">-</div>
+                        <div class="stat-label">纯净服务</div>
                     </div>
                 </div>
             </div>

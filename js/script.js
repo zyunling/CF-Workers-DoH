@@ -263,10 +263,14 @@ async function testAllServers() {
 
     renderDohListSkeletons();
     
+    // 同时刷新 DoH 服务和网络信息
     const promises = dohServers.map((server, index) => testDohServer(server, index));
     testResults = await Promise.all(promises);
     
     updateStats();
+    
+    // 刷新网络信息
+    loadNetworkInfo();
 
     isTesting = false;
     refreshBtn.disabled = false;

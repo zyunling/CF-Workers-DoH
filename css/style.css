@@ -403,19 +403,20 @@ body {
 }
 
 /* 网络信息样式 */
-.network-info-section {
-    margin-top: 32px;
-}
-
-.network-info-title {
-    margin-bottom: 20px;
-}
-
-/* 网络卡片容器 - 与统计概览保持一致的4列布局 */
 .network-cards-container {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
+    margin-bottom: 32px;
+}
+
+/* 统计信息区块样式 */
+.stats-info-section {
+    margin-top: 32px;
+}
+
+.stats-info-title {
+    margin-bottom: 20px;
 }
 
 /* 单个网络卡片 */
@@ -870,13 +871,14 @@ body {
     }
 
     /* 移动端网络信息样式 */
-    .network-info-section {
-        margin-top: 24px;
-    }
-
     .network-cards-container {
         grid-template-columns: 1fr 1fr;
         gap: 12px;
+        margin-bottom: 24px;
+    }
+
+    .stats-info-section {
+        margin-top: 24px;
     }
 
     .network-card {
