@@ -378,7 +378,10 @@ async function fetchIpipData() {
     // 遍历 API 配置列表
     for (const config of apiConfigs) {
         try {
-            const response = await fetch(config.url);
+            // 添加时间戳参数避免缓存
+            const timestamp = Date.now();
+            const urlWithTimestamp = `${config.url}?t=${timestamp}`;
+            const response = await fetch(urlWithTimestamp);
             const data = await response.json();
             
             // 使用对应的解析器解析数据
@@ -417,7 +420,9 @@ async function fetchIpipData() {
 async function fetchEdgeOneData() {
     setStatus('status-edgeone', 'loading');
     try {
-        const response = await fetch('https://ip-api.090227.xyz/ip.json');
+        // 添加时间戳参数避免缓存
+        const timestamp = Date.now();
+        const response = await fetch(`https://ip-api.090227.xyz/ip.json?t=${timestamp}`);
         const data = await response.json();
         
         document.getElementById('edgeone-ip').textContent = data.query || '未知';
@@ -437,7 +442,9 @@ async function fetchEdgeOneData() {
 async function fetchCloudFlareData() {
     setStatus('status-cf', 'loading');
     try {
-        const response = await fetch('https://cf.090227.xyz/ip.json');
+        // 添加时间戳参数避免缓存
+        const timestamp = Date.now();
+        const response = await fetch(`https://cf.090227.xyz/ip.json?t=${timestamp}`);
         const data = await response.json();
         
         document.getElementById('cf-ip').textContent = data.ip || '未知';
@@ -457,7 +464,9 @@ async function fetchCloudFlareData() {
 async function fetchTwitterData() {
     setStatus('status-twitter', 'loading');
     try {
-        const response = await fetch('https://x.com/cdn-cgi/trace');
+        // 添加时间戳参数避免缓存
+        const timestamp = Date.now();
+        const response = await fetch(`https://x.com/cdn-cgi/trace?t=${timestamp}`);
         const text = await response.text();
         
         // 解析文本格式的响应 (key=value 格式,每行一个)
