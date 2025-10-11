@@ -306,119 +306,188 @@ function copyToClipboard(text) {
 
 document.addEventListener('DOMContentLoaded', () => {
     testAllServers();
-    fetchNetworkInfo();
+    loadNetworkInfo();
 });
 
-// 获取网络信息
-async function fetchNetworkInfo() {
+// 网络出口信息功能
+// 设置状态指示器
+function setStatus(id, status) {
+    const indicator = document.getElementById(id);
+    if (indicator) {
+        indicator.className = 'status-indicator status-' + status;
+    }
+}
+
+// 获取国内测试数据 (遍历多个 API: speedtest.cn > ipipv.com > ipip.net)
+async function fetchIpipData() {
+    setStatus('status-ipip', 'loading');
+    
+    // 获取标题元素,用于动态更新 API 来源
+    const titleElement = document.querySelector('#status-ipip').parentElement;
+    
+    // 定义 API 配置列表,按优先级排序
+    const apiConfigs = [
+        {
+            name: 'speedtest.cn',
+            url: 'https://api-v3.speedtest.cn/ip',
+            parser: (data) => {
+                if (data.code === 0 && data.data) {
+                    return {
+                        ip: data.data.ip || '未知',
+                        country: data.data.country || '未知',
+                        city: data.data.city || '未知'
+                    };
+                }
+                throw new Error('数据格式错误');
+            }
+        },
+        {
+            name: 'ipipv.com',
+            url: 'https://myip.ipipv.com/',
+            parser: (data) => {
+                return {
+                    ip: data.Ip || '未知',
+                    country: data.Country || '未知',
+                    city: data.City || '未知'
+                };
+            }
+        },
+        {
+            name: 'ipip.net',
+            url: 'https://myip.ipip.net/json',
+            parser: (data) => {
+                if (data.ret === 'ok' && data.data) {
+                    return {
+                        ip: data.data.ip || '未知',
+                        country: data.data.location[0] || '未知',
+                        city: data.data.location[2] || '未知'
+                    };
+                }
+                throw new Error('数据格式错误');
+            }
+        }
+    ];
+    
+    // 遍历 API 配置列表
+    for (const config of apiConfigs) {
+        try {
+            const response = await fetch(config.url);
+            const data = await response.json();
+            
+            // 使用对应的解析器解析数据
+            const result = config.parser(data);
+            
+            // 更新页面显示
+            document.getElementById('ipip-ip').textContent = result.ip;
+            document.getElementById('ipip-country').textContent = result.country;
+            document.getElementById('ipip-city').textContent = result.city;
+            setStatus('status-ipip', 'success');
+            
+            // 更新标题显示当前使用的 API
+            if (titleElement) {
+                titleElement.innerHTML = `<span class="status-indicator" id="status-ipip"></span>国内测试（${config.name}）`;
+                setStatus('status-ipip', 'success'); // 重新设置状态,因为 innerHTML 会清除
+            }
+            
+            console.log(`使用 ${config.name} API 成功`);
+            return; // 成功则返回,不再尝试其他 API
+            
+        } catch (error) {
+            console.warn(`${config.name} 接口失败:`, error);
+            // 继续尝试下一个 API
+        }
+    }
+    
+    // 所有 API 都失败
+    document.getElementById('ipip-ip').innerHTML = '<span class="error">加载失败</span>';
+    document.getElementById('ipip-country').textContent = '';
+    document.getElementById('ipip-city').textContent = '';
+    setStatus('status-ipip', 'error');
+    console.error('所有国内测试 API 都失败');
+}
+
+// 获取 EdgeOne 数据
+async function fetchEdgeOneData() {
+    setStatus('status-edgeone', 'loading');
     try {
-        const response = await fetch('https://functions-geolocation.edgeone.app/geo');
+        const response = await fetch('https://ip-api.090227.xyz/ip.json');
         const data = await response.json();
         
-        if (data && data.eo && data.eo.geo) {
-            networkInfo = data.eo;
-            updateNetworkInfo();
-        }
+        document.getElementById('edgeone-ip').textContent = data.query || '未知';
+        document.getElementById('edgeone-country').textContent = data.countryCode || '未知';
+        document.getElementById('edgeone-city').textContent = data.city || '未知';
+        setStatus('status-edgeone', 'success');
     } catch (error) {
-        console.warn('获取网络信息失败:', error);
+        document.getElementById('edgeone-ip').innerHTML = '<span class="error">加载失败</span>';
+        document.getElementById('edgeone-country').textContent = '';
+        document.getElementById('edgeone-city').textContent = '';
+        setStatus('status-edgeone', 'error');
+        console.error('EdgeOne 接口错误:', error);
     }
 }
 
-// 更新网络信息显示
-function updateNetworkInfo() {
-    if (!networkInfo) return;
-    
-    const { geo, clientIp } = networkInfo;
-    const networkInfoEl = document.getElementById('networkInfo');
-    const clientIpEl = document.getElementById('clientIp');
-    const locationEl = document.getElementById('location');
-    const ispEl = document.getElementById('isp');
-    const proxyWarningEl = document.getElementById('proxyWarning');
-    
-    // 显示网络信息面板
-    networkInfoEl.classList.remove('hidden');
-    
-    // 更新IP地址（默认隐藏B段和C段）
-    const maskedIp = maskIpAddress(clientIp);
-    clientIpEl.textContent = maskedIp;
-    clientIpEl.dataset.realIp = clientIp;
-    clientIpEl.dataset.maskedIp = maskedIp;
-    
-    // 更新运营商信息（默认显示星号）
-    const realIsp = geo.cisp || '';
-    const maskedIsp = '****';
-    ispEl.textContent = maskedIsp;
-    ispEl.dataset.realIsp = realIsp;
-    ispEl.dataset.maskedIsp = maskedIsp;
-    
-    // 更新地理位置（默认显示星号）
-    const realLocation = `${geo.countryCodeAlpha2} ${geo.regionName} ${geo.cityName}`;
-    const maskedLocation = '** ******* ********';
-    locationEl.textContent = maskedLocation;
-    locationEl.dataset.realLocation = realLocation;
-    locationEl.dataset.maskedLocation = maskedLocation;
-    
-    // 检查是否需要显示代理警告
-    if (geo.countryCodeAlpha2 !== 'CN') {
-        proxyWarningEl.classList.remove('hidden');
-    } else {
-        proxyWarningEl.classList.add('hidden');
+// 获取 CloudFlare 数据
+async function fetchCloudFlareData() {
+    setStatus('status-cf', 'loading');
+    try {
+        const response = await fetch('https://cf.090227.xyz/ip.json');
+        const data = await response.json();
+        
+        document.getElementById('cf-ip').textContent = data.ip || '未知';
+        document.getElementById('cf-country').textContent = data.country || '未知';
+        document.getElementById('cf-city').textContent = data.city || '未知';
+        setStatus('status-cf', 'success');
+    } catch (error) {
+        document.getElementById('cf-ip').innerHTML = '<span class="error">加载失败</span>';
+        document.getElementById('cf-country').textContent = '';
+        document.getElementById('cf-city').textContent = '';
+        setStatus('status-cf', 'error');
+        console.error('CloudFlare 接口错误:', error);
     }
 }
 
-// 隐藏IP地址的B段和C段
-function maskIpAddress(ip) {
-    const parts = ip.split('.');
-    if (parts.length === 4) {
-        return `${parts[0]}.*.*.${parts[3]}`;
-    }
-    return ip;
-}
-
-// 切换所有网络信息显示/隐藏
-function toggleAllNetworkInfo() {
-    const clientIpEl = document.getElementById('clientIp');
-    const ispEl = document.getElementById('isp');
-    const locationEl = document.getElementById('location');
-    
-    if (isNetworkInfoHidden) {
-        // 显示所有真实信息
-        if (clientIpEl.dataset.realIp) {
-            clientIpEl.textContent = clientIpEl.dataset.realIp;
-        }
-        if (ispEl.dataset.realIsp) {
-            ispEl.textContent = ispEl.dataset.realIsp;
-        }
-        if (locationEl.dataset.realLocation) {
-            locationEl.textContent = locationEl.dataset.realLocation;
-        }
-        isNetworkInfoHidden = false;
-    } else {
-        // 隐藏所有信息为星号
-        if (clientIpEl.dataset.maskedIp) {
-            clientIpEl.textContent = clientIpEl.dataset.maskedIp;
-        }
-        if (ispEl.dataset.maskedIsp) {
-            ispEl.textContent = ispEl.dataset.maskedIsp;
-        }
-        if (locationEl.dataset.maskedLocation) {
-            locationEl.textContent = locationEl.dataset.maskedLocation;
-        }
-        isNetworkInfoHidden = true;
+// 获取推特入口数据
+async function fetchTwitterData() {
+    setStatus('status-twitter', 'loading');
+    try {
+        const response = await fetch('https://x.com/cdn-cgi/trace');
+        const text = await response.text();
+        
+        // 解析文本格式的响应 (key=value 格式,每行一个)
+        const data = {};
+        text.split('\n').forEach(line => {
+            const [key, value] = line.split('=');
+            if (key && value) {
+                data[key.trim()] = value.trim();
+            }
+        });
+        
+        document.getElementById('twitter-ip').textContent = data.ip || '未知';
+        document.getElementById('twitter-country').textContent = data.loc || '未知';
+        document.getElementById('twitter-city').textContent = data.colo || '';
+        setStatus('status-twitter', 'success');
+    } catch (error) {
+        document.getElementById('twitter-ip').innerHTML = '<span class="error">加载失败</span>';
+        document.getElementById('twitter-country').textContent = '';
+        document.getElementById('twitter-city').textContent = '';
+        setStatus('status-twitter', 'error');
+        console.error('推特入口接口错误:', error);
     }
 }
 
-// IP地址点击事件
-function toggleIpDisplay(element) {
-    toggleAllNetworkInfo();
-}
-
-// 运营商点击事件
-function toggleIspDisplay(element) {
-    toggleAllNetworkInfo();
-}
-
-// 地理位置点击事件
-function toggleLocationDisplay(element) {
-    toggleAllNetworkInfo();
+// 页面加载时自动获取网络信息
+function loadNetworkInfo() {
+    // 检查网络卡片容器是否存在
+    const networkCardsContainer = document.querySelector('.network-cards-container');
+    if (networkCardsContainer) {
+        // 并行加载所有网络信息
+        Promise.all([
+            fetchIpipData(),
+            fetchEdgeOneData(),
+            fetchCloudFlareData(),
+            fetchTwitterData()
+        ]).catch(error => {
+            console.error('加载网络信息时出错:', error);
+        });
+    }
 }

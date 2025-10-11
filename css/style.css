@@ -403,114 +403,149 @@ body {
 }
 
 /* 网络信息样式 */
-.network-info {
-    margin-top: 20px;
-    padding: 20px;
+.network-info-section {
+    margin-top: 32px;
+}
+
+.network-info-title {
+    margin-bottom: 20px;
+}
+
+/* 网络卡片容器 - 与统计概览保持一致的4列布局 */
+.network-cards-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+/* 单个网络卡片 */
+.network-card {
     background: var(--color-bg-secondary);
-    border-radius: var(--border-radius-sm);
     border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-sm);
+    padding: 20px 18px;
+    transition: all var(--transition-speed) ease;
+    position: relative;
+    overflow: hidden;
 }
 
-.network-info.hidden {
-    display: none;
+.network-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--color-gradient-accent);
 }
 
-.network-title {
-    font-size: 1.1rem;
-    color: var(--color-text-primary);
-    margin: 0;
-    font-weight: 600;
+.network-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+    border-color: var(--color-border-hover);
 }
 
-.network-container {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 12px;
-}
-
-.network-details {
-    display: flex;
-    flex: 1;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 30px;
-}
-
-.network-item {
+/* 卡片标题 */
+.network-card-title {
     display: flex;
     align-items: center;
     gap: 8px;
-}
-
-.network-label {
-    font-size: 0.9rem;
-    color: var(--color-text-secondary);
+    font-size: 0.85rem;
     font-weight: 500;
-    min-width: 70px;
+    color: var(--color-text-tertiary);
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.network-value {
-    font-size: 0.9rem;
-    color: var(--color-text-primary);
-    font-weight: 600;
-}
-
-.ip-address {
-    cursor: pointer;
-    padding: 2px 6px;
-    border-radius: 4px;
+/* 状态指示器 */
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
     transition: all var(--transition-speed) ease;
 }
 
-.ip-address:hover {
-    background: var(--color-bg-primary);
-    color: var(--color-accent);
+.status-indicator.status-loading {
+    background-color: var(--color-warning);
+    animation: pulse 1.5s infinite;
 }
 
-.isp-info {
-    margin-left: 8px;
-    color: var(--color-text-secondary);
-    font-weight: 500;
-    cursor: pointer;
-    padding: 2px 6px;
-    border-radius: 4px;
-    transition: all var(--transition-speed) ease;
+.status-indicator.status-success {
+    background-color: var(--color-success);
 }
 
-.isp-info:hover {
-    background: var(--color-bg-primary);
-    color: var(--color-accent);
+.status-indicator.status-error {
+    background-color: var(--color-error);
 }
 
-.location-info {
-    cursor: pointer;
-    padding: 2px 6px;
-    border-radius: 4px;
-    transition: all var(--transition-speed) ease;
-}
-
-.location-info:hover {
-    background: var(--color-bg-primary);
-    color: var(--color-accent);
-}
-
-.proxy-warning {
-    margin-top: 12px;
-    padding: 8px 12px;
-    background: rgba(255, 193, 7, 0.1);
-    border: 1px solid rgba(255, 193, 7, 0.3);
-    border-radius: var(--border-radius-sm);
+/* 网络信息内容 */
+.network-info-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     text-align: center;
 }
 
-.proxy-warning.hidden {
-    display: none;
+/* IP 文本 - 类似统计数值的样式 */
+.ip-text {
+    font-family: var(--font-mono);
+    font-size: 1.3rem;
+    font-weight: 700;
+    background: var(--color-gradient-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.3;
+    word-break: break-all;
+    margin-bottom: 4px;
 }
 
-.proxy-warning small {
-    color: #ffc107;
+.ip-text .error {
+    color: var(--color-error);
+    font-size: 0.9rem;
+    background: none;
+    -webkit-text-fill-color: var(--color-error);
+}
+
+/* 位置文本容器 */
+.location-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    flex-wrap: wrap;
+}
+
+.country-text {
+    font-weight: 500;
+    color: var(--color-text-secondary);
+}
+
+.city-text {
+    font-weight: 400;
+    color: var(--color-text-tertiary);
+}
+
+.location-text .country-text::after {
+    content: '•';
+    margin-left: 4px;
+    color: var(--color-text-tertiary);
+}
+
+/* 脉冲动画 */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.1);
+    }
 }
 
 .refresh-btn {
@@ -835,36 +870,29 @@ body {
     }
 
     /* 移动端网络信息样式 */
-    .network-container {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
+    .network-info-section {
+        margin-top: 24px;
     }
 
-    .network-details {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
+    .network-cards-container {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
     }
 
-    .network-item {
-        flex-direction: row;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
-        width: 100%;
+    .network-card {
+        padding: 14px 12px;
     }
 
-    .network-label {
-        min-width: auto;
+    .network-card-title {
         font-size: 0.8rem;
+        margin-bottom: 10px;
     }
 
-    .network-value {
-        font-size: 0.85rem;
+    .ip-text {
+        font-size: 1rem;
     }
 
-    .isp-info {
-        margin-left: 4px;
+    .location-text {
+        font-size: 0.8rem;
     }
 }

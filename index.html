@@ -44,23 +44,65 @@
                     <div class="stat-label">纯净服务</div>
                 </div>
             </div>
-            <div class="network-info hidden" id="networkInfo">
-                <div class="network-container">
-                    <h3 class="network-title">🌐 网络信息</h3>
-                    <div class="network-details">
-                        <div class="network-item">
-                            <span class="network-label">IP地址：</span>
-                            <span class="network-value ip-address" id="clientIp" onclick="toggleIpDisplay(this)">-</span>
-                            <span class="network-value isp-info" id="isp" onclick="toggleIspDisplay(this)">-</span>
+            
+            <div class="network-info-section">
+                <h2 class="card-title network-info-title">🌐 网络信息</h2>
+                <div class="network-cards-container">
+                    <div class="network-card">
+                        <div class="network-card-title">
+                            <span class="status-indicator" id="status-ipip"></span>
+                            国内测试
                         </div>
-                        <div class="network-item">
-                            <span class="network-label">地理位置：</span>
-                            <span class="network-value location-info" id="location" onclick="toggleLocationDisplay(this)">-</span>
+                        <div class="network-info-content">
+                            <span id="ipip-ip" class="ip-text">加载中...</span>
+                            <div class="location-text">
+                                <span id="ipip-country" class="country-text">-</span>
+                                <span id="ipip-city" class="city-text">-</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="proxy-warning hidden" id="proxyWarning">
-                    <small>💡 关闭代理后查看当前页面更准确</small>
+
+                    <div class="network-card">
+                        <div class="network-card-title">
+                            <span class="status-indicator" id="status-edgeone"></span>
+                            国外测试（漏网之鱼）
+                        </div>
+                        <div class="network-info-content">
+                            <span id="edgeone-ip" class="ip-text">加载中...</span>
+                            <div class="location-text">
+                                <span id="edgeone-country" class="country-text">-</span>
+                                <span id="edgeone-city" class="city-text">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="network-card">
+                        <div class="network-card-title">
+                            <span class="status-indicator" id="status-cf"></span>
+                            CloudFlare（ProxyIP）
+                        </div>
+                        <div class="network-info-content">
+                            <span id="cf-ip" class="ip-text">加载中...</span>
+                            <div class="location-text">
+                                <span id="cf-country" class="country-text">-</span>
+                                <span id="cf-city" class="city-text">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="network-card">
+                        <div class="network-card-title">
+                            <span class="status-indicator" id="status-twitter"></span>
+                            墙外测试（推特）
+                        </div>
+                        <div class="network-info-content">
+                            <span id="twitter-ip" class="ip-text">加载中...</span>
+                            <div class="location-text">
+                                <span id="twitter-country" class="country-text">-</span>
+                                <span id="twitter-city" class="city-text">-</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
