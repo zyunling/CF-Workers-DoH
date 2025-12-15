@@ -1,16 +1,44 @@
-let DoH = "cloudflare-dns.com";
-const jsonDoH = `https://${DoH}/resolve`;
-const dnsDoH = `https://${DoH}/dns-query`;
-let DoH路径 = 'dns-query';
+// ---------- 可配置项（从环境变量读取） ----------
+let DoH = "cloudflare-dns.com"; // 默认上游 host
+let jsonDoH = `https://${DoH}/resolve`;
+let dnsDoH = `https://${DoH}/dns-query`;
+
+// 默认 DOH 路径（可被 env.DOH_PATH 覆盖）
+let DOH_PATH = 'dns-query';
+
+// 读取 env 时会在 fetch() 内覆盖（见后面 fetch 开头）
+
 export default {
   async fetch(request, env) {
-    if (env.DOH) {
-      DoH = env.DOH;
-      const match = DoH.match(/:\/\/([^\/]+)/);
-      if (match) {
-        DoH = match[1];
-      }
+    // 读取并规范化环境变量（放在 fetch 开头）
+    if (env && env.DOH) {
+      // 支持传入完整 URL 或仅 host
+      let tmp = env.DOH.toString();
+      try {
+        // 如果是完整 URL，提取 host
+        const m = tmp.match(/:\/\/([^\/]+)/);
+        if (m) tmp = m[1];
+      } catch (e) {}
+      DoH = tmp || DoH;
+      jsonDoH = `https://${DoH}/resolve`;
+      dnsDoH = `https://${DoH}/dns-query`;
     }
+
+    // DOH_PATH 支持自定义（只保留路径段，不带斜杠）
+    if (env && env.DOH_PATH) {
+      DOH_PATH = env.DOH_PATH.toString().replace(/^\//, '').replace(/\/$/, '');
+      if (!DOH_PATH) DOH_PATH = 'dns-query';
+    }
+
+    // WEB 页面入口路径（可为空，表示根 /）
+    let WEB_PATH = '';
+    if (env && env.WEB_PATH) {
+      WEB_PATH = env.WEB_PATH.toString().replace(/^\//, '').replace(/\/$/, '');
+    }
+
+    // WEB 密码（可选）
+    const WEB_PASS = (env && env.WEB_PASS) ? env.WEB_PASS.toString() : '';
+
     DoH路径 = env.PATH || env.TOKEN || DoH路径;//DoH路径也单独设置 变量PATH
     if (DoH路径.includes("/")) DoH路径 = DoH路径.split("/")[1];
     const url = new URL(request.url);
@@ -29,10 +57,11 @@ export default {
       });
     }
 
-    // 如果请求路径，则作为 DoH 服务器处理
-    if (path === `/${DoH路径}`) {
+    // DoH 路由（使用可配置 DOH_PATH）
+    if (path === `/${DOH_PATH}` || path === `/${DOH_PATH}/`) {
       return await DOHRequest(request);
     }
+
 
     // 添加IP地理位置信息查询代理
     if (path === '/ip-info') {
@@ -1681,4 +1710,5 @@ async function nginx() {
 	</html>
 	`
   return text;
+
 }
